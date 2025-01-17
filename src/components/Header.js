@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -7,7 +7,7 @@ import {
   faMedium,
   faStackOverflow,
 } from "@fortawesome/free-brands-svg-icons";
-import { Box, HStack } from "@chakra-ui/react";
+import { Box, HStack, Link } from "@chakra-ui/react";
 
 const socials = [
   {
@@ -33,6 +33,31 @@ const socials = [
 ];
 
 const Header = () => {
+  const [transform, setTransform] = useState("translateY(0)");
+  const prevScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > prevScrollY.current) {
+        // Scrolling down
+        setTransform("translateY(-200px)");
+      } else {
+        // Scrolling up
+        setTransform("translateY(0)");
+      }
+
+      prevScrollY.current = currentScrollY; // Update previous scroll position
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const handleClick = (anchor) => () => {
     const id = `${anchor}-section`;
     const element = document.getElementById(id);
@@ -51,6 +76,7 @@ const Header = () => {
       left={0}
       right={0}
       translateY={0}
+      transform={transform}
       transitionProperty="transform"
       transitionDuration=".3s"
       transitionTimingFunction="ease-in-out"
@@ -65,31 +91,27 @@ const Header = () => {
         >
           <nav>
             <HStack spacing="4">
-          {socials.map((social, index) => (
-            <Link
-              key={index}
-              href={social.url}
-              isExternal
-            >
-              <FontAwesomeIcon icon={social.icon} size="2x" />
-            </Link>
-          ))}
-        </HStack>
+              {socials.map((social, index) => (
+                <Link key={index + social.url} href={social.url} isExternal>
+                  <FontAwesomeIcon icon={social.icon} size="2x" />
+                </Link>
+              ))}
+            </HStack>
           </nav>
           <nav>
             <HStack spacing={8}>
               <Link
-            href="/#projects-section"
-            onClick={(e) => handleClick(e, "#projects-section")}
-          >
-            Projects
-          </Link>
-          <Link
-            href="/#contactme-section"
-            onClick={(e) => handleClick(e, "#contactme-section")}
-          >
-            Contact Me
-          </Link>
+                href="/#projects-section"
+                onClick={(e) => handleClick("#projects")}
+              >
+                Projects
+              </Link>
+              <Link
+                href="/#contactme-section"
+                onClick={(e) => handleClick("#contactme")}
+              >
+                Contact Me
+              </Link>
             </HStack>
           </nav>
         </HStack>
